@@ -25,6 +25,7 @@ async function login(req, res) {
   const { email, senha } = req.body;
 
   try {
+    console.log("Tentando login:", email);
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
 
@@ -34,6 +35,7 @@ async function login(req, res) {
     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1d" });
     res.json({ token, user: { id: user._id, nome: user.nome, email: user.email } });
   } catch (error) {
+    console.error("Erro interno no login:", error);
     res.status(500).json({ error: "Erro no login" });
   }
 }
