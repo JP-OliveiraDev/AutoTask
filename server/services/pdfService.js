@@ -68,22 +68,33 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     doc.fontSize(28)
       .fillColor(styles.primary)
       .font('Helvetica-Bold')
-      .text('PROPOSTA COMERCIAL', 0, currentY, { align: 'center' });
-
+      .text('PROPOSTA COMERCIAL', 0, currentY, {
+        align: 'center',
+        width: doc.page.width
+      });
 
     currentY += 40;
 
     if (data.cliente) {
       doc.fontSize(14)
         .fillColor(styles.accent)
-        .text(`Prezado(a) ${safeText(data.cliente)}`, 0, currentY, { align: 'center' });
+        .text(`Prezado(a) ${safeText(data.cliente)}`, 0, currentY, {
+          align: 'center',
+          width: doc.page.width
+        });
       currentY += 30;
     }
 
     doc.fontSize(12).fillColor('#444')
-      .text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, 0, currentY, { align: 'center' });
+      .text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, 0, currentY, {
+        align: 'center',
+        width: doc.page.width
+      });
     currentY += 18;
-    doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, 0, currentY, { align: 'center' });
+    doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, 0, currentY, {
+      align: 'center',
+      width: doc.page.width
+    });
 
     // Nova Página
     doc.addPage();
@@ -112,7 +123,7 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
 
     doc.fontSize(16).fillColor(styles.primary).text('3. Benefícios e Diferenciais', { underline: true }).moveDown(0.5);
     if (data.beneficios_exclusivos || data.beneficios) {
-      doc.fontSize(12).fillColor('black').text(`🎁 ${safeText(data.beneficios_exclusivos || data.beneficios)}`).moveDown(0.5);
+      doc.fontSize(12).fillColor('black').text(`Benefícios: ${safeText(data.beneficios_exclusivos || data.beneficios)}`).moveDown(0.5);
     }
     if (data.termos_condicoes || termos) doc.text(`Termos e Condições: ${safeText(data.termos_condicoes || termos)}`).moveDown();
 
