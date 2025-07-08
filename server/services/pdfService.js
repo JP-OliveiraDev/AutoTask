@@ -42,27 +42,20 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     doc.rect(0, 0, doc.page.width, doc.page.height).fill(styles.bg);
     doc.restore();
 
+    const pageHeight = doc.page.height;
     const centerX = doc.page.width / 2;
     const logoWidth = 120;
-    const logoY = 60;
+    const logoHeight = 60;
+    const logoY = 80;
 
     if (logoPath) {
       try {
         const resolvedLogoPath = path.resolve(logoPath);
         if (fs.existsSync(resolvedLogoPath)) {
           const imageBuffer = fs.readFileSync(resolvedLogoPath);
-
-          const logoWidth = 120;
-          const centerX = doc.page.width / 2;
-          const logoY = 60;
-
-          console.log("Logo path:", resolvedLogoPath);
-          console.log("Page width:", doc.page?.width);
-          console.log("Logo inserting at:", centerX - logoWidth / 2, logoY);
-          
           doc.image(imageBuffer, centerX - logoWidth / 2, logoY, {
             width: logoWidth,
-            fit: [logoWidth, 60],
+            fit: [logoWidth, logoHeight],
           });
         }
       } catch (err) {
@@ -70,19 +63,27 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
       }
     }
 
+    let currentY = logoY + logoHeight + 40;
+
     doc.fontSize(28)
       .fillColor(styles.primary)
       .font('Helvetica-Bold')
-      .text('PROPOSTA COMERCIAL', 0, 160, { align: 'center' });
+      .text('PROPOSTA COMERCIAL', 0, currentY, { align: 'center' });
 
-   if (data.cliente) {
-      doc.fontSize(14).fillColor(styles.accent)
-        .text(`Prezado(a) ${safeText(data.cliente)}`, { align: 'center' });
+
+    currentY += 40;
+
+    if (data.cliente) {
+      doc.fontSize(14)
+        .fillColor(styles.accent)
+        .text(`Prezado(a) ${safeText(data.cliente)}`, 0, currentY, { align: 'center' });
+      currentY += 30;
     }
 
-    doc.moveDown(1);
-    doc.fontSize(12).fillColor('#444').text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, { align: 'center' });
-    doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, { align: 'center' });
+    doc.fontSize(12).fillColor('#444')
+      .text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, 0, currentY, { align: 'center' });
+    currentY += 18;
+    doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, 0, currentY, { align: 'center' });
 
     // Nova Página
     doc.addPage();
