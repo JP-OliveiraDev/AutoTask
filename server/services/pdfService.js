@@ -47,18 +47,26 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     const logoY = 60;
 
     if (logoPath) {
-      const resolvedLogoPath = path.resolve(logoPath);
       try {
+        const resolvedLogoPath = path.resolve(logoPath);
         if (fs.existsSync(resolvedLogoPath)) {
-          doc.image(resolvedLogoPath, centerX - logoWidth / 2, logoY, {
+          const imageBuffer = fs.readFileSync(resolvedLogoPath);
+
+          const logoWidth = 120;
+          const centerX = doc.page.width / 2;
+          const logoY = 60;
+
+          console.log("Logo path:", resolvedLogoPath);
+          console.log("Page width:", doc.page?.width);
+          console.log("Logo inserting at:", centerX - logoWidth / 2, logoY);
+          
+          doc.image(imageBuffer, centerX - logoWidth / 2, logoY, {
             width: logoWidth,
-            fit: [logoWidth, 60]
+            fit: [logoWidth, 60],
           });
-        } else {
-          console.warn("Logo não encontrada:", resolvedLogoPath);
         }
       } catch (err) {
-        console.error("Erro ao carregar logo:", err.message);
+        console.warn("Logo não carregada:", err.message);
       }
     }
 
@@ -66,7 +74,6 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
       .fillColor(styles.primary)
       .font('Helvetica-Bold')
       .text('PROPOSTA COMERCIAL', 0, 160, { align: 'center' });
-
 
    if (data.cliente) {
       doc.fontSize(14).fillColor(styles.accent)
