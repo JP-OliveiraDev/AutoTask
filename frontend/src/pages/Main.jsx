@@ -391,11 +391,22 @@ export default function Main() {
         {pdfUrl && (
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-3">Preview da Proposta:</h3>
-            <iframe
-              src={pdfUrl}
-              className="w-full h-[500px] border border-zinc-600 rounded-xl"
-              title="Preview da proposta"
-            />
+            <div className="w-full h-[500px] border border-zinc-600 rounded-xl bg-black">
+              <iframe
+                src={pdfUrl}
+                className="w-full h-full"
+                title="Preview da proposta"
+                onError={(e) => {
+                  e.target.style.display = "none";
+                  e.target.parentNode.innerHTML = `
+                    <p style="padding:1rem; color: white;">Não foi possível carregar o preview.
+                      <a href="${pdfUrl}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
+                        Clique aqui para abrir o PDF
+                      </a>
+                    </p>`;
+                }}
+              />
+            </div>
           </div>
         )}
       </motion.div>

@@ -31,7 +31,7 @@ async function handlePrompt(req, res) {
     } = req.body;
 
     const prompt = detalhesSolicitacao || "Gerar proposta comercial personalizada.";
-    const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+    const baseUrl = process.env.BASE_URL;
 
     const result = await interpretPrompt(prompt);
 
