@@ -46,22 +46,19 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     const logoWidth = 120;
     const logoY = 60;
 
-    const resolvedLogoPath = path.resolve(logoPath);
     if (logoPath) {
       const resolvedLogoPath = path.resolve(logoPath);
-      if (fs.existsSync(resolvedLogoPath)) {
-        try {
+      try {
+        if (fs.existsSync(resolvedLogoPath)) {
           doc.image(resolvedLogoPath, centerX - logoWidth / 2, logoY, {
             width: logoWidth,
-            fit: [logoWidth, 60],
-            align: 'center'
+            fit: [logoWidth, 60]
           });
-        } catch (err) {
-          console.error("Erro ao inserir imagem:", err.message);
-          doc.fontSize(10).fillColor('red').text('[Erro ao carregar logo]', centerX - 60, logoY, { align: 'center' });
+        } else {
+          console.warn("Logo não encontrada:", resolvedLogoPath);
         }
-      } else {
-        doc.fontSize(10).fillColor('red').text('[Logo não encontrada]', centerX - 60, logoY, { align: 'center' });
+      } catch (err) {
+        console.error("Erro ao carregar logo:", err.message);
       }
     }
 
@@ -115,8 +112,6 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     if (data.observacoes_finais) doc.fontSize(11).fillColor('black').text(safeText(data.observacoes_finais)).moveDown(1);
 
     doc.fontSize(10).fillColor('#666').text('Este documento é válido apenas para fins comerciais. Consulte nossos termos completos no site oficial da empresa.').moveDown(2);
-
-
 
     doc.end();
     stream.on('finish', () => resolve({ filePath, fileName }));
