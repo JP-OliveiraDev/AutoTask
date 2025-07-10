@@ -133,7 +133,11 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
     doc.fontSize(10).fillColor('#666').text('Este documento é válido apenas para fins comerciais. Consulte nossos termos completos no site oficial da empresa.').moveDown(2);
 
     doc.end();
-    stream.on('finish', () => resolve({ filePath, fileName }));
+    stream.on('finish', () => {
+      setTimeout(() => {
+        resolve({ filePath, fileName });
+      }, 300);
+    });
     stream.on('error', reject);
   });
 }

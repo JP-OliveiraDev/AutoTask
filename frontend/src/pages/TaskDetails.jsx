@@ -54,7 +54,13 @@ function TaskDetails() {
   );
 
   const baixarPdf = async () => {
+    try {
       const response = await fetch(task.pdfUrl);
+
+      if (!response.ok || !response.headers.get("Content-Type")?.includes("application/pdf")) {
+        throw new Error("Arquivo PDF inválido ou não encontrado.");
+      }
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
 
@@ -63,6 +69,10 @@ function TaskDetails() {
       a.download = task.pdfUrl.split('/').pop();
       a.click();
       window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert("Erro ao baixar o PDF. O arquivo pode estar corrompido ou indisponível.");
+      console.error(err);
+    }
   };
 
   return (
