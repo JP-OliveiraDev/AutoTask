@@ -1,144 +1,154 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
+const { finished } = require('stream/promises');
 
 async function generateProposalPDF(data, layout = 'comercial', preco = '', validade = '', termos = '', logoPath = '') {
-  return new Promise((resolve, reject) => {
-    const slugify = str => str.toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
-    const fileName = `proposta_${slugify(data.cliente || 'cliente')}_${Date.now()}.pdf`;
-    const filePath = path.join(__dirname, '..', 'outputs', fileName);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const slugify = str => str.toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
+      const fileName = `proposta_${slugify(data.cliente || 'cliente')}_${Date.now()}.pdf`;
 
-    const doc = new PDFDocument({ margin: 50, size: 'A4' });
-    const stream = fs.createWriteStream(filePath);
-    doc.pipe(stream);
-
-    const styleMap = {
-      comercial: {
-        font: 'Helvetica',
-        primary: '#2E86DE',
-        accent: '#10B981',
-        bg: '#F8F9FA'
-      },
-      criativo: {
-        font: 'Courier-Bold',
-        primary: '#E91E63',
-        accent: '#FF9800',
-        bg: '#FFF0F6'
-      },
-      minimalista: {
-        font: 'Helvetica-Oblique',
-        primary: '#111827',
-        accent: '#6B7280',
-        bg: '#FFFFFF'
+      // Garante que a pasta outputs existe
+      const outputDir = path.join(__dirname, '..', 'outputs');
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
       }
-    };
-    const styles = styleMap[layout] || styleMap['comercial'];
 
-    const safeText = txt => txt?.toString().replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim() || '';
+      const filePath = path.join(outputDir, fileName);
 
-    // CAPA
-    doc.font(styles.font);
-    doc.save();
-    doc.rect(0, 0, doc.page.width, doc.page.height).fill(styles.bg);
-    doc.restore();
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const stream = fs.createWriteStream(filePath);
+      doc.pipe(stream);
 
-    const pageHeight = doc.page.height;
-    const centerX = doc.page.width / 2;
-    const logoWidth = 120;
-    const logoHeight = 60;
-    const logoY = 80;
-
-    if (logoPath) {
-      try {
-        const resolvedLogoPath = path.resolve(logoPath);
-        if (fs.existsSync(resolvedLogoPath)) {
-          const imageBuffer = fs.readFileSync(resolvedLogoPath);
-          doc.image(imageBuffer, centerX - logoWidth / 2, logoY, {
-            width: logoWidth,
-            fit: [logoWidth, logoHeight],
-          });
+      const styleMap = {
+        comercial: {
+          font: 'Helvetica',
+          primary: '#2E86DE',
+          accent: '#10B981',
+          bg: '#F8F9FA'
+        },
+        criativo: {
+          font: 'Courier-Bold',
+          primary: '#E91E63',
+          accent: '#FF9800',
+          bg: '#FFF0F6'
+        },
+        minimalista: {
+          font: 'Helvetica-Oblique',
+          primary: '#111827',
+          accent: '#6B7280',
+          bg: '#FFFFFF'
         }
-      } catch (err) {
-        console.warn("Logo não carregada:", err.message);
+      };
+      const styles = styleMap[layout] || styleMap['comercial'];
+
+      const safeText = txt => txt?.toString().replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').trim() || '';
+
+      // CAPA
+      doc.font(styles.font);
+      doc.save();
+      doc.rect(0, 0, doc.page.width, doc.page.height).fill(styles.bg);
+      doc.restore();
+
+      const centerX = doc.page.width / 2;
+      const logoWidth = 120;
+      const logoHeight = 60;
+      const logoY = 80;
+
+      if (logoPath) {
+        try {
+          const resolvedLogoPath = path.resolve(logoPath);
+          if (fs.existsSync(resolvedLogoPath)) {
+            const imageBuffer = fs.readFileSync(resolvedLogoPath);
+            doc.image(imageBuffer, centerX - logoWidth / 2, logoY, {
+              width: logoWidth,
+              fit: [logoWidth, logoHeight],
+            });
+          }
+        } catch (err) {
+          console.warn("Logo não carregada:", err.message);
+        }
       }
-    }
 
-    let currentY = logoY + logoHeight + 40;
+      let currentY = logoY + logoHeight + 40;
 
-    doc.fontSize(28)
-      .fillColor(styles.primary)
-      .font('Helvetica-Bold')
-      .text('PROPOSTA COMERCIAL', 0, currentY, {
-        align: 'center',
-        width: doc.page.width
-      });
-
-    currentY += 40;
-
-    if (data.cliente) {
-      doc.fontSize(14)
-        .fillColor(styles.accent)
-        .text(`Prezado(a) ${safeText(data.cliente)}`, 0, currentY, {
+      doc.fontSize(28)
+        .fillColor(styles.primary)
+        .font('Helvetica-Bold')
+        .text('PROPOSTA COMERCIAL', 0, currentY, {
           align: 'center',
           width: doc.page.width
         });
-      currentY += 30;
-    }
 
-    doc.fontSize(12).fillColor('#444')
-      .text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, 0, currentY, {
+      currentY += 40;
+
+      if (data.cliente) {
+        doc.fontSize(14)
+          .fillColor(styles.accent)
+          .text(`Prezado(a) ${safeText(data.cliente)}`, 0, currentY, {
+            align: 'center',
+            width: doc.page.width
+          });
+        currentY += 30;
+      }
+
+      doc.fontSize(12).fillColor('#444')
+        .text(`Data da Proposta: ${data.data_proposta || new Date().toLocaleDateString('pt-BR')}`, 0, currentY, {
+          align: 'center',
+          width: doc.page.width
+        });
+      currentY += 18;
+      doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, 0, currentY, {
         align: 'center',
         width: doc.page.width
       });
-    currentY += 18;
-    doc.text(`Número da Proposta: ${data.numero_proposta || data.numeroProposta || Date.now()}`, 0, currentY, {
-      align: 'center',
-      width: doc.page.width
-    });
 
-    // Nova Página
-    doc.addPage();
-    doc.font(styles.font).fillColor('black');
+      // NOVA PÁGINA
+      doc.addPage();
+      doc.font(styles.font).fillColor('black');
 
-    // Seções organizadas
-    doc.fontSize(16).fillColor(styles.primary).text('1. Detalhes do Pedido', { underline: true }).moveDown(0.5);
-    if (data.produto) doc.fontSize(12).fillColor('black').text(`Produto: ${safeText(data.produto)}`);
-    if (data.quantidade) doc.text(`Quantidade Solicitada: ${safeText(data.quantidade)}`);
-    if (data.quantidadeMinima) doc.text(`Quantidade Mínima: ${safeText(data.quantidadeMinima)}`);
-    if (data?.resumo_comercial?.preco_unitario || data.precoUnitario)
-      doc.text(`Preço Unitário: R$ ${safeText(data?.resumo_comercial?.preco_unitario || data.precoUnitario)}`);
-    const valorFinal = data?.resumo_comercial?.valor_final || preco || data.precoTotal;
-    if (valorFinal) doc.fillColor(styles.accent).text(`Preço Total: R$ ${safeText(valorFinal)}`).moveDown();
+      // Seções organizadas
+      doc.fontSize(16).fillColor(styles.primary).text('1. Detalhes do Pedido', { underline: true }).moveDown(0.5);
+      if (data.produto) doc.fontSize(12).fillColor('black').text(`Produto: ${safeText(data.produto)}`);
+      if (data.quantidade) doc.text(`Quantidade Solicitada: ${safeText(data.quantidade)}`);
+      if (data.quantidadeMinima) doc.text(`Quantidade Mínima: ${safeText(data.quantidadeMinima)}`);
+      if (data?.resumo_comercial?.preco_unitario || data.precoUnitario)
+        doc.text(`Preço Unitário: R$ ${safeText(data?.resumo_comercial?.preco_unitario || data.precoUnitario)}`);
+      const valorFinal = data?.resumo_comercial?.valor_final || preco || data.precoTotal;
+      if (valorFinal) doc.fillColor(styles.accent).text(`Preço Total: R$ ${safeText(valorFinal)}`).moveDown();
 
-    doc.fontSize(16).fillColor(styles.primary).text('2. Condições Comerciais', { underline: true }).moveDown(0.5);
-    if (data?.resumo_comercial?.forma_pagamento || data.pagamento)
-      doc.fontSize(12).fillColor('black').text(`Pagamento: ${safeText(data?.resumo_comercial?.forma_pagamento || data.pagamento)}`);
-    if (data?.resumo_comercial?.parcelamento || data.parcelamento)
-      doc.text(`Parcelamento: ${safeText(data?.resumo_comercial?.parcelamento || data.parcelamento)}`);
-    if (data?.resumo_comercial?.prazo_entrega || data.prazoEntrega)
-      doc.text(`Prazo de Entrega: ${safeText(data?.resumo_comercial?.prazo_entrega || data.prazoEntrega)}`);
-    if (data.garantia) doc.text(`Garantia: ${safeText(data.garantia)}`);
-    if (data?.resumo_comercial?.validade_proposta || validade || data.validade)
-      doc.text(`Validade da Proposta: ${safeText(data?.resumo_comercial?.validade_proposta || validade || data.validade)}`).moveDown();
+      doc.fontSize(16).fillColor(styles.primary).text('2. Condições Comerciais', { underline: true }).moveDown(0.5);
+      if (data?.resumo_comercial?.forma_pagamento || data.pagamento)
+        doc.fontSize(12).fillColor('black').text(`Pagamento: ${safeText(data?.resumo_comercial?.forma_pagamento || data.pagamento)}`);
+      if (data?.resumo_comercial?.parcelamento || data.parcelamento)
+        doc.text(`Parcelamento: ${safeText(data?.resumo_comercial?.parcelamento || data.parcelamento)}`);
+      if (data?.resumo_comercial?.prazo_entrega || data.prazoEntrega)
+        doc.text(`Prazo de Entrega: ${safeText(data?.resumo_comercial?.prazo_entrega || data.prazoEntrega)}`);
+      if (data.garantia) doc.text(`Garantia: ${safeText(data.garantia)}`);
+      if (data?.resumo_comercial?.validade_proposta || validade || data.validade)
+        doc.text(`Validade da Proposta: ${safeText(data?.resumo_comercial?.validade_proposta || validade || data.validade)}`).moveDown();
 
-    doc.fontSize(16).fillColor(styles.primary).text('3. Benefícios e Diferenciais', { underline: true }).moveDown(0.5);
-    if (data.beneficios_exclusivos || data.beneficios) {
-      doc.fontSize(12).fillColor('black').text(`Benefícios: ${safeText(data.beneficios_exclusivos || data.beneficios)}`).moveDown(0.5);
+      doc.fontSize(16).fillColor(styles.primary).text('3. Benefícios e Diferenciais', { underline: true }).moveDown(0.5);
+      if (data.beneficios_exclusivos || data.beneficios) {
+        doc.fontSize(12).fillColor('black').text(`Benefícios: ${safeText(data.beneficios_exclusivos || data.beneficios)}`).moveDown(0.5);
+      }
+      if (data.termos_condicoes || termos) doc.text(`Termos e Condições: ${safeText(data.termos_condicoes || termos)}`).moveDown();
+
+      doc.fontSize(16).fillColor(styles.primary).text('4. Observações Finais', { underline: true }).moveDown(0.5);
+      if (data.observacoes_finais) doc.fontSize(11).fillColor('black').text(safeText(data.observacoes_finais)).moveDown(1);
+
+      doc.fontSize(10).fillColor('#666').text('Este documento é válido apenas para fins comerciais. Consulte nossos termos completos no site oficial da empresa.').moveDown(2);
+
+      doc.end();
+
+      await finished(stream);
+      console.log("PDF finalizado:", filePath);
+      resolve({ filePath, fileName });
+    } catch (err) {
+      console.error("Erro ao gerar PDF:", err);
+      reject(err);
     }
-    if (data.termos_condicoes || termos) doc.text(`Termos e Condições: ${safeText(data.termos_condicoes || termos)}`).moveDown();
-
-    doc.fontSize(16).fillColor(styles.primary).text('4. Observações Finais', { underline: true }).moveDown(0.5);
-    if (data.observacoes_finais) doc.fontSize(11).fillColor('black').text(safeText(data.observacoes_finais)).moveDown(1);
-
-    doc.fontSize(10).fillColor('#666').text('Este documento é válido apenas para fins comerciais. Consulte nossos termos completos no site oficial da empresa.').moveDown(2);
-
-    doc.end();
-    stream.on('finish', () => {
-      setTimeout(() => {
-        resolve({ filePath, fileName });
-      }, 300);
-    });
-    stream.on('error', reject);
   });
 }
 
