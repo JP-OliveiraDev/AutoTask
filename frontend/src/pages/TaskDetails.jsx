@@ -53,6 +53,18 @@ function TaskDetails() {
     )
   );
 
+  const baixarPdf = async () => {
+      const response = await fetch(task.pdfUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = task.pdfUrl.split('/').pop();
+      a.click();
+      window.URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-xl text-white max-w-3xl mx-auto space-y-6">
       {/* Voltar */}
@@ -92,8 +104,8 @@ function TaskDetails() {
             <InfoLine label="Tipo de Proposta" value={task.tipoProposta} />
             <InfoLine label="Quantidade Solicitada" value={task.quantidade} />
             <InfoLine label="Qtd. Mínima de Compra" value={task.quantidadeMinima} />
-            <InfoLine label="Preço Unitário" value={`R$ ${task.precoUnitario}`} icon={<DollarSign size={16} />} />
-            <InfoLine label="Preço Total" value={`R$ ${task.precoTotal}`} icon={<BadgeCheck size={16} />} />
+            <InfoLine label="Preço Unitário" value={`${task.precoUnitario}`} icon={<DollarSign size={16} />} />
+            <InfoLine label="Preço Total" value={`${task.precoTotal}`} icon={<BadgeCheck size={16} />} />
           </div>
         </div>
       )}
@@ -157,19 +169,9 @@ function TaskDetails() {
       )}
 
       {/* PDF */}
-      {!isQuickReply && task.pdfUrl && (
-        <div>
-          <a
-            href={task.pdfUrl}
-            download={task.pdfUrl.split('/').pop()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-indigo-400 hover:underline mt-2"
-          >
-            <FileText size={18} /> Baixar PDF da Proposta
-          </a>
-        </div>
-      )}
+      <button onClick={baixarPdf} className="text-indigo-400 hover:underline mt-2 flex items-center gap-2">
+        <FileText size={18} /> Baixar PDF da Proposta
+      </button>
     </div>
   );
 }
