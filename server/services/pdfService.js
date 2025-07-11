@@ -9,13 +9,7 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
       const slugify = str => str.toLowerCase().replace(/\s+/g, '_').replace(/[^\w\-]+/g, '');
       const fileName = `proposta_${slugify(data.cliente || 'cliente')}_${Date.now()}.pdf`;
 
-      // Garante que a pasta outputs existe
-      const outputDir = path.join(__dirname, '..', 'outputs');
-      if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
-      }
-
-      const filePath = path.join(outputDir, fileName);
+      const filePath = path.join('/tmp', fileName);
 
       const doc = new PDFDocument({ margin: 50, size: 'A4' });
       const stream = fs.createWriteStream(filePath);

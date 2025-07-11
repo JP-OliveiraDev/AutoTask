@@ -17,7 +17,7 @@ app.use(express.json());
 app.use('/api/tasks', taskRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/favorites', favoriteRoutes);
-app.use('/pdfs', express.static(path.join(__dirname, 'outputs')));
+app.use('/pdfs', express.static('/tmp'));
 
 // Conexão com o MongoDB
 mongoose.connect(process.env.MONGO_URI, {
