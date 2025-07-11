@@ -239,10 +239,10 @@ export default function QuickReplies() {
             </h2>
             <p className="text-gray-300 whitespace-pre-line">{reply}</p>
 
-            <div className="flex gap-3 mt-4">
+            <div className="flex flex-col md:flex-row gap-3 mt-4">
               <button
                 onClick={handleCopy}
-                className="flex items-center gap-2 px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded transition"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-700 hover:bg-purple-800 rounded transition"
               >
                 <ClipboardCheck size={16} />
                 {copied ? 'Copiado!' : 'Copiar'}
@@ -250,7 +250,7 @@ export default function QuickReplies() {
 
               <button
                 onClick={() => saveFavorite(question, reply)}
-                className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-black rounded transition"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-black rounded transition"
               >
                 <Star size={16} />
                 {favSaved ? 'Favorito Salvo!' : 'Favoritar'}
@@ -258,7 +258,7 @@ export default function QuickReplies() {
 
               <button
                 onClick={handleGenerateReply}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded transition"
               >
                 <RefreshCcw size={16} />
                 Regenerar
