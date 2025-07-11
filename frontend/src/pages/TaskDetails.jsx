@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import api from "../services/api";
 import {
   ArrowLeft,
@@ -16,11 +17,15 @@ import {
   DollarSign,
   PackageCheck,
   ThumbsUp,
+  XCircle,
+  CheckCircle,
 } from "lucide-react";
 
 function TaskDetails() {
   const { id } = useParams();
   const [task, setTask] = useState(null);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   useEffect(() => {
     async function fetchTask() {
@@ -34,6 +39,17 @@ function TaskDetails() {
 
     fetchTask();
   }, [id]);
+
+  useEffect(() => {
+  if (erro || sucesso) {
+    const timeout = setTimeout(() => {
+      setErro("");
+      setSucesso("");
+    }, 3000);
+
+    return () => clearTimeout(timeout);
+  }
+}, [erro, sucesso]);
 
   if (!task) {
     return (
@@ -69,15 +85,51 @@ function TaskDetails() {
       a.download = task.pdfUrl.split('/').pop();
       a.click();
       window.URL.revokeObjectURL(url);
+
+      setSucesso("PDF baixado com sucesso!")
     } catch (err) {
-      alert("Erro ao baixar o PDF. O arquivo pode estar corrompido ou indisponível.");
+      setErro("Erro ao baixar o PDF. O arquivo pode estar corrompido ou indisponível.");
       console.error(err);
     }
   };
 
   return (
     <div className="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-2xl shadow-xl text-white max-w-3xl mx-auto space-y-6">
-      {/* Voltar */}
+      <AnimatePresence>
+        {erro && (
+          <motion.div
+            key="erro"
+            className="absolute top-4 right-4 bg-[#EF4444] text-white px-4 py-2 rounded shadow-lg z-50"
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="flex items-center gap-2">
+              <XCircle size={18} /> {erro}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {sucesso && (
+          <motion.div
+            key="sucesso"
+            className="absolute top-16 right-4 bg-[#10B981] text-white px-4 py-2 rounded shadow-lg z-50"
+            initial={{ x: 300, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 300, opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            <div className="flex items-center gap-2">
+              <CheckCircle size={18} /> {sucesso}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Voltar */} 
       <Link
         to="/history"
         className="flex items-center gap-2 text-violet-400 hover:text-violet-300 transition"
