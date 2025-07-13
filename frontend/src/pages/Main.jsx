@@ -406,6 +406,17 @@ export default function Main() {
                     </p>`;
                 }}
               />
+              <div className="mt-4 text-center">
+                <a
+                  href={pdfUrl}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-md"
+                >
+                  📥 Baixar PDF
+                </a>
+              </div>  
             </div>
           </div>
         )}
