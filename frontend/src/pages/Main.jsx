@@ -18,6 +18,7 @@ export default function Main() {
   const [sucesso, setSucesso] = useState("");
   const [erro, setErro] = useState("");
   const [pdfUrl, setPdfUrl] = useState("");
+  const [erroPreview, setErroPreview] = useState(false);
   const formasSelecionadas = watch("formasPagamento[]") || [];
 
   useEffect(() => {
@@ -391,32 +392,43 @@ export default function Main() {
         {pdfUrl && (
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-3">Preview da Proposta:</h3>
-            <div className="w-full h-[500px] border border-zinc-600 rounded-xl bg-black">
+
+            <div className="w-full aspect-[3/4] max-h-[80vh] border border-zinc-600 rounded-xl bg-black overflow-hidden">
               <iframe
                 src={pdfUrl}
                 className="w-full h-full"
                 title="Preview da proposta"
                 onError={(e) => {
                   e.target.style.display = "none";
-                  e.target.parentNode.innerHTML = `
-                    <p style="padding:1rem; color: white;">Não foi possível carregar o preview.
-                      <a href="${pdfUrl}" target="_blank" style="color: #60a5fa; text-decoration: underline;">
-                        Clique aqui para abrir o PDF
-                      </a>
-                    </p>`;
+                  setErroPreview(true); // Novo estado para lidar com erro
                 }}
               />
-              <div className="mt-4 text-center">
-                <a
-                  href={pdfUrl}
-                  download
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-md"
-                >
-                  📥 Baixar PDF
-                </a>
-              </div>  
+              {erroPreview && (
+                <p className="text-white p-4 text-center text-sm">
+                  Não foi possível carregar o preview.
+                  <br />
+                  <a
+                    href={pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 underline"
+                  >
+                    Clique aqui para abrir o PDF
+                  </a>
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 text-center">
+              <a
+                href={pdfUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-md"
+              >
+                📥 Baixar PDF
+              </a>
             </div>
           </div>
         )}
