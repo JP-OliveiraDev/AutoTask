@@ -115,7 +115,7 @@ export default function QuickReplies() {
 
   return (
     <div className="relative min-h-screen bg-black text-white px-6 py-12 flex flex-col items-center">
-      {/* Toasts de sucesso e erro */}
+      {/* Toasts */}
       <AnimatePresence>
         {erro && (
           <motion.div

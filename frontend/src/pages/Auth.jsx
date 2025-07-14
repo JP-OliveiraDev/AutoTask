@@ -57,7 +57,7 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white px-4 relative overflow-hidden">
-      {/* Toast de erro*/}
+      {/* Toasts */}
       <AnimatePresence>
         {erro && (
           <motion.div
@@ -72,7 +72,6 @@ export default function Auth() {
         )}
       </AnimatePresence>
 
-      {/* Toast de sucesso*/}
       <AnimatePresence>
         {sucesso && (
           <motion.div

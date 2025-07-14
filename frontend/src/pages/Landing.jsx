@@ -13,7 +13,7 @@ export default function Landing() {
         alt="background"
       />
 
-      {/* Hero Section */}
+      {/* Titulo */}
       <section className="relative z-10 pt-32 pb-24 text-center px-4 max-w-6xl mx-auto">
         <motion.h1
           className="text-5xl md:text-6xl font-extrabold leading-tight mb-6"

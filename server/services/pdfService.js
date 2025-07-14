@@ -102,7 +102,7 @@ async function generateProposalPDF(data, layout = 'comercial', preco = '', valid
       doc.addPage();
       doc.font(styles.font).fillColor('black');
 
-      // Seções organizadas
+      // SEÇÕES ORGANIZADAS
       doc.fontSize(16).fillColor(styles.primary).text('1. Detalhes do Pedido', { underline: true }).moveDown(0.5);
       if (data.produto) doc.fontSize(12).fillColor('black').text(`Produto: ${safeText(data.produto)}`);
       if (data.quantidade) doc.text(`Quantidade Solicitada: ${safeText(data.quantidade)}`);

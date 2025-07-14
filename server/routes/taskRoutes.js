@@ -5,7 +5,7 @@ const { handlePrompt, getTasks, getTaskById, generateQuickReply, deleteTask   } 
 
 const router = express.Router();
 
-// Configuração do multer para upload da logo
+// Multer para upload da logo
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, '..', 'uploads', 'logos'));

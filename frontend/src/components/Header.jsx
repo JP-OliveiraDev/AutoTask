@@ -80,7 +80,6 @@ function Header() {
 
         {user && (
           <div className="flex items-center gap-4">
-            {/* Desktop */}
             <div className="hidden md:flex items-center gap-4 text-sm">
               <span className="flex items-center gap-2 text-white/80 font-medium">
                 <UserCircle className="w-5 h-5 text-white/60" />
@@ -89,7 +88,7 @@ function Header() {
               {navButtons}
             </div>
 
-            {/* Mobile - botão menu */}
+            {/* botão menu */}
             <button
               onClick={() => setOpenMenu(!openMenu)}
               className="md:hidden p-2 rounded-lg bg-zinc-700 hover:bg-zinc-600"
@@ -100,7 +99,7 @@ function Header() {
         )}
       </div>
 
-      {/* Mobile menu dropdown */}
+      {/* menu dropdown */}
       {openMenu && (
         <div className="md:hidden mt-4 flex flex-col gap-3 text-sm bg-zinc-800 p-4 rounded-xl shadow-xl">
           <span className="flex items-center gap-2 text-white/80 font-medium">
